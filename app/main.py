@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import posts
+from app.routers import postRouter
 from app.db.database import engine, Base
 
 # Create database tables
@@ -13,9 +13,9 @@ app = FastAPI(
 )
 
 # Include routers
-app.include_router(posts.router, prefix="/api")
+app.include_router(postRouter.router, prefix="/api")
 
 
 @app.get("/")
-async def root():
+def root():
     return {"message": "Welcome to my FastAPI application!"}

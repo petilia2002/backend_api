@@ -25,3 +25,9 @@ class Post(PostBase):
 
     class Config:
         from_attributes = True  # Ранее называлось orm_mode=True в Pydantic v1
+
+
+# post = PostCreate(
+#     author="petilia2002", title="defw", content="wef32f", picture="fefewf"
+# )
+# print(post.model_dump())
