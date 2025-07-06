@@ -1,5 +1,13 @@
+from fastapi import UploadFile
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
+
+
+# Для парсинга данных из json:
+class PostData(BaseModel):
+    author: str
+    title: str
+    content: str
 
 
 class PostBase(BaseModel):
@@ -31,3 +39,6 @@ class Post(PostBase):
 #     author="petilia2002", title="defw", content="wef32f", picture="fefewf"
 # )
 # print(post.model_dump())
+
+# postData = PostData(author="petnat2008", title="22323", content="228", param="222")
+# print(postData)

@@ -1,30 +1,31 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.post import PostCreate
 from app.services.postService import PostService
 from app.exceptions import ItemNotFound
+from app.utils.request_parser import PostInput
 
 
 class PostController:
     @staticmethod
-    def get_all_posts(db: Session):
+    async def get_all_posts(db: AsyncSession):
         try:
-            return PostService.get_all_posts(db)
+            return await PostService.get_all_posts(db)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    def get_post_by_id(db: Session, post_id: int):
+    async def get_post_by_id(db: AsyncSession, post_id: int):
         try:
-            return PostService.get_post_by_id(db, post_id)
+            return await PostService.get_post_by_id(db, post_id)
         except ItemNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    def create_post(db: Session, post: PostCreate):
+    async def create_post(db: AsyncSession, post: PostInput):
         try:
-            return PostService.create_post(db, post)
+            return await PostService.create_post(db, post)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))

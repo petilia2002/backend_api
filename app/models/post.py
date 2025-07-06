@@ -9,4 +9,4 @@ class Post(Base):
     author = Column(String(50), nullable=False)
     title = Column(String(100), nullable=False)
     content = Column(String(500), nullable=False)
-    picture = Column(String(100), nullable=False)
+    picture = Column(String(100))

@@ -1,35 +1,37 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.post import Post
 from app.schemas.post import PostCreate
-from sqlalchemy import desc
 from app.exceptions import ItemNotFound
+from app.utils.request_parser import PostInput
+from app.services.fileService import FileService
 
 
 class PostService:
     @staticmethod
-    def get_all_posts(db: Session):
-        return db.query(Post).order_by(desc(Post.id)).all()
+    async def get_all_posts(db: AsyncSession):
+        result = await db.execute(select(Post).order_by(Post.id.desc()))
+        return result.scalars().all()
 
     @staticmethod
-    def get_post_by_id(db: Session, post_id: int):
-        post = db.query(Post).filter(Post.id == post_id).first()
+    async def get_post_by_id(db: AsyncSession, post_id: int):
+        result = await db.execute(select(Post).where(Post.id == post_id))
+        post = result.scalars().first()
         if not post:
             raise ItemNotFound(post_id, "Post")
         return post
 
     @staticmethod
-    def create_post(db: Session, post: PostCreate):
-        db_post = Post(
-            author=post.author,
-            title=post.title,
-            content=post.content,
-            picture=post.picture,
-        )
+    async def create_post(db: AsyncSession, post: PostInput):
+        filename = await FileService.save_upload_file(post.picture)
+
+        db_post = Post(**{**post.data.model_dump(), "picture": filename})
         try:
             db.add(db_post)
-            db.commit()
-            db.refresh(db_post)
+            await db.commit()
+            await db.refresh(db_post)
         except Exception:
-            db.rollback()
+            await db.rollback()
             raise
         return db_post
