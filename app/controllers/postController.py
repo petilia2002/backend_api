@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.post import PostCreate
 from app.services.postService import PostService
 from app.exceptions import ItemNotFound
 from app.utils.request_parser import PostInput
@@ -27,5 +26,25 @@ class PostController:
     async def create_post(db: AsyncSession, post: PostInput):
         try:
             return await PostService.create_post(db, post)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    async def delete_post(db: AsyncSession, post_id: int):
+        try:
+            return await PostService.delete_post(db, post_id)
+        except ItemNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    async def update_post(db: AsyncSession, post: PostInput):
+        try:
+            return await PostService.update_post(db, post)
+        except ItemNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except KeyError as e:
+            raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))

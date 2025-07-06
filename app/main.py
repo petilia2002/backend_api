@@ -1,7 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from app.routers import postRouter
 from app.db.database import async_engine, Base  # Импортируем async_engine вместо engine
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR.parent / "static"
 
 
 @asynccontextmanager
@@ -20,6 +25,10 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Включаем выдачу статичных файлов
+app.mount("/static", StaticFiles(directory=STATIC_DIR), "static")
+
 # Включаем асинхронные роутеры
 app.include_router(postRouter.router, prefix="/api")
 
@@ -27,5 +36,4 @@ app.include_router(postRouter.router, prefix="/api")
 # Асинхронный корневой эндпоинт
 @app.get("/")
 async def root():
-    return {"message": "Welcome to my FastAPI application!"}
-    # raise HTTPException(status_code=500, detail="Something went wrong")
+    return {"Message": "Welcome to my FastAPI application!"}

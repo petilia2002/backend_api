@@ -1,13 +1,5 @@
-from fastapi import UploadFile
-from pydantic import BaseModel, EmailStr
-from typing import List, Optional
-
-
-# Для парсинга данных из json:
-class PostData(BaseModel):
-    author: str
-    title: str
-    content: str
+from pydantic import BaseModel
+from typing import Optional
 
 
 class PostBase(BaseModel):
@@ -17,28 +9,15 @@ class PostBase(BaseModel):
     picture: Optional[str] = None
 
 
-class PostCreate(PostBase):
-    pass
-
-
-class PostUpdate(BaseModel):
-    author: Optional[str] = None
-    title: Optional[str] = None
-    content: Optional[str] = None
-    picture: Optional[str] = None
-
-
-class Post(PostBase):
+class PostResponse(PostBase):
     id: int
 
     class Config:
-        from_attributes = True  # Ранее называлось orm_mode=True в Pydantic v1
+        from_attributes = True
 
 
-# post = PostCreate(
-#     author="petilia2002", title="defw", content="wef32f", picture="fefewf"
-# )
-# print(post.model_dump())
-
-# postData = PostData(author="petnat2008", title="22323", content="228", param="222")
-# print(postData)
+class PostData(BaseModel):
+    id: Optional[int] = None
+    author: str
+    title: str
+    content: str

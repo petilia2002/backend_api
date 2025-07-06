@@ -26,16 +26,16 @@ async def parse_request(request: Request) -> PostInput:
             raise HTTPException(
                 status_code=400, detail=f"Validation error: {e.errors()}"
             )
-
         return PostInput(data=data, picture=None)
 
     # Обработка multipart/form-data
-    elif "multipart/form-data" in content_type:
+    elif (
+        "multipart/form-data" in content_type
+        or "application/x-www-form-urlencoded" in content_type
+    ):
         try:
             form = await request.form()
-            data = PostData(
-                author=form["author"], title=form["title"], content=form["content"]
-            )
+            data = PostData(**form)
         except KeyError as e:
             raise HTTPException(status_code=400, detail=f"Missing form field: {str(e)}")
         except Exception:

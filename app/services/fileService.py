@@ -1,8 +1,9 @@
+import aiofiles.os
 from fastapi import UploadFile
 import uuid
 import aiofiles
 import os
-from app.core.config import UPLOAD_FOLDER
+from app.core.config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 
 
 class FileService:
@@ -12,19 +13,35 @@ class FileService:
         return f"{uuid.uuid4().hex}.{ext}"
 
     @staticmethod
-    async def save_upload_file(file: UploadFile | None):
+    async def save_uploaded_file(file: UploadFile | None):
         if not file:
             return None
 
-        unique_name = FileService._generate_unique_filename(file.filename)
-        save_path = os.path.join(UPLOAD_FOLDER, unique_name)
+        if not FileService.allowed_file(file.filename):
+            return None
 
-        async with aiofiles.open(save_path, "wb") as out_file:
-            content = await file.read()
-            await out_file.write(content)
+        try:
+            unique_name = FileService._generate_unique_filename(file.filename)
+            path = os.path.join(UPLOAD_FOLDER, unique_name)
 
-        return unique_name
+            async with aiofiles.open(path, "wb") as out_file:
+                content = await file.read()
+                await out_file.write(content)
+            return unique_name
+        except Exception as e:
+            print("Error: ", str(e))
 
     @staticmethod
-    async def remove_file():
-        pass
+    async def delete_file(filename: str):
+        try:
+            path = os.path.join(UPLOAD_FOLDER, filename)
+            if os.path.exists(path):
+                await aiofiles.os.remove(path)
+        except Exception as e:
+            print("Error: ", str(e))
+
+    @staticmethod
+    def allowed_file(filename: str):
+        return (
+            "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+        )
