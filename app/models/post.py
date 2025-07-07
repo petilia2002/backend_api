@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from datetime import datetime
 from app.db.database import Base
 
 
@@ -10,3 +11,5 @@ class Post(Base):
     title = Column(String(100), nullable=False)
     content = Column(String(500), nullable=False)
     picture = Column(String(100))
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
